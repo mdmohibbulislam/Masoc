@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+<h1>Edit profile</h1>
+<p class="lede">Update your public bio.</p>
+
+<form method="post" style="max-width: 34rem; margin-top: 1.5rem;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div style="margin-bottom: 1.25rem;">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <span class="helptext">{{ field.help_text }}</span>
+        {% endif %}
+        {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="actions">
+        <button type="submit" class="btn" id="save-profile-btn">Save changes</button>
+        <a class="btn btn-quiet" href="{% url 'profile' user.username %}">Cancel</a>
+    </div>
+</form>
+
+<style>
+    textarea {
+        font-size: 1rem;
+        min-height: 5rem;
+    }
+</style>
+{% endblock %}

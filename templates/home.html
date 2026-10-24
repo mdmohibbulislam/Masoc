@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<h1>Your feed</h1>
+
+<form method="post" class="composer">
+    {% csrf_token %}
+    {{ form.content.errors }}
+    {{ form.content }}
+    <div class="actions">
+        <button type="submit" class="btn" id="post-submit-btn">Post</button>
+    </div>
+</form>
+
+{% if posts %}
+<ul class="feed">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-head">
+            <a class="post-author" href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a>
+            <span class="post-time">{{ post.created_at|timesince }} ago</span>
+        </div>
+        <a class="post-body post-body-link" href="{% url 'post_detail' post.pk %}">{{ post.content|linebreaksbr }}</a>
+        <div class="post-actions">
+            <form method="post" action="{% url 'toggle_like' post.pk %}" class="like-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit"
+                    class="action-btn {% if post.pk in liked_ids %}liked{% endif %}"
+                    aria-label="{% if post.pk in liked_ids %}Unlike{% else %}Like{% endif %}">
+                    <span>Like</span>
+                    <span>{{ post.likes.count }}</span>
+                </button>
+            </form>
+            <a class="action-btn" href="{% url 'post_detail' post.pk %}">Comment <span>{{ post.comments.count }}</span></a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="empty">Nothing here yet. Write your first post above.</p>
+{% endif %}
+{% else %}
+<h1>Welcome to {{ SITE_NAME }}</h1>
+<p class="lede">Create an account to post updates and follow friends.</p>
+<div class="actions">
+    <a class="btn" href="{% url 'signup' %}">Create account</a>
+    <a class="btn btn-quiet" href="{% url 'login' %}">Log in</a>
+</div>
+{% endif %}
+
+
+{% endblock %}

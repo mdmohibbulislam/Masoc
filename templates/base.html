@@ -1,0 +1,366 @@
+{# templates/base.html #}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Home{% endblock %} · {{ SITE_NAME }}</title>
+    <style>
+        :root {
+            --paper: #f7f8fc;
+            --ink: #1f2a44;
+            --muted: #5d6885;
+            --line: #d9deec;
+            --accent: #3350e0;
+            --accent-hover: #2740b8;
+            --error: #b3261e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+            line-height: 1.55;
+        }
+
+        /* layout */
+        .wrap {
+            max-width: 40rem;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        .topbar {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .page {
+            padding-top: 2.5rem;
+            padding-bottom: 4rem;
+        }
+
+        /* top bar */
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+        }
+
+        nav a,
+        .linklike {
+            font: inherit;
+            font-weight: 600;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        nav a:hover,
+        .linklike:hover {
+            text-decoration: underline;
+        }
+
+        nav form {
+            margin: 0;
+        }
+
+        .linklike {
+            background: none;
+            border: 0;
+            padding: 0;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .who {
+            color: var(--muted);
+        }
+
+        .search-link {
+            font-size: 1.1rem;
+            text-decoration: none;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .search-link:hover { opacity: 1; }
+
+        /* text */
+        h1 {
+            font-size: 2rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin: 0 0 0.75rem;
+        }
+
+        p {
+            max-width: 60ch;
+        }
+
+        .lede {
+            color: var(--muted);
+        }
+
+        a {
+            color: var(--accent);
+        }
+
+        /* forms */
+        form p {
+            margin: 0 0 1.1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        input:is([type=text], [type=password], [type=email]) {
+            width: 100%;
+            padding: 0.6rem 0.7rem;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            color: inherit;
+            font: inherit;
+        }
+
+        input:focus-visible,
+        .btn:focus-visible,
+        a:focus-visible,
+        .linklike:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .helptext {
+            display: block;
+            margin-top: 0.3rem;
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .helptext ul {
+            margin: 0.3rem 0 0;
+            padding-left: 1.1rem;
+        }
+
+        .errorlist {
+            list-style: none;
+            margin: 0 0 0.4rem;
+            padding: 0;
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        /* buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.1rem;
+            border: 0;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-quiet {
+            background: transparent;
+            color: var(--ink);
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+
+        .btn-quiet:hover {
+            background: #eceffa;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        /* composer and feed */
+        textarea {
+            width: 100%;
+            padding: 0.6rem 0.7rem;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            color: inherit;
+            font: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .composer {
+            margin-bottom: 2rem;
+        }
+
+        .composer .actions {
+            margin-top: 0.75rem;
+        }
+
+        .feed {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .post {
+            padding: 1rem 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .post-head {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+
+        .post-author {
+            font-weight: 700;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .post-author:hover {
+            text-decoration: underline;
+        }
+
+        .who-link {
+            text-decoration: none;
+        }
+
+        .who-link:hover {
+            text-decoration: underline;
+        }
+
+        .post-time {
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .post-body {
+            margin: 0.25rem 0 0;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            color: var(--muted);
+        }
+
+        /* Post body as a subtle link */
+        .post-body-link {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+            margin: 0.25rem 0 0;
+            overflow-wrap: anywhere;
+        }
+
+        .post-body-link:hover { color: var(--accent); }
+
+        /* Like / comment action row */
+        .post-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: none;
+            border: none;
+            font: inherit;
+            font-size: 0.875rem;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .action-btn:hover { background: #eceffa; color: var(--ink); }
+        .like-form { margin: 0; }
+        .static-action { cursor: default !important; }
+        .static-action:hover { background: none !important; color: var(--muted) !important; }
+
+        /* Liked state */
+        .action-btn.liked { color: #e0325c; }
+        .action-btn.liked:hover { background: #fce7ed; color: #e0325c; }
+
+        /* Edit-profile pill */
+        .btn-edit-profile {
+            border-radius: 999px;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="wrap bar">
+            <a class="brand" href="{% url 'home' %}">{{ SITE_NAME }}</a>
+            <nav>
+                <a class="search-link" href="{% url 'user_search' %}" aria-label="Search">🔍</a>
+                {% if user.is_authenticated %}
+                <a class="who who-link" href="{% url 'profile' user.username %}">{{ user.username }}</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="linklike">Log out</button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}">Log in</a>
+                <a href="{% url 'signup' %}">Sign up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrap page">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

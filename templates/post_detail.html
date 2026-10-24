@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.author.username }}'s post{% endblock %}
+
+{% block content %}
+{# ── Post card ── #}
+<article class="detail-post">
+    <div class="post-head">
+        <a class="post-author" href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a>
+        <span class="post-time">{{ post.created_at|timesince }} ago</span>
+    </div>
+    <p class="post-body detail-body">{{ post.content|linebreaksbr }}</p>
+
+    <div class="post-actions">
+        {# Like button #}
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_like' post.pk %}" class="like-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="action-btn {% if is_liked %}liked{% endif %}" aria-label="Like">
+                <span>Like</span>
+                <span class="like-count">{{ likes_count }}</span>
+            </button>
+        </form>
+        {% else %}
+        <span class="action-btn">Like {{ likes_count }}</span>
+        {% endif %}
+
+        <span class="action-btn static-action">Comments <span>{{ comments.count }}</span></span>
+    </div>
+</article>
+
+{# ── Comments ── #}
+<section class="comments-section">
+    <h2 class="comments-heading">Comments</h2>
+
+    {% if user.is_authenticated %}
+    <form method="post" class="comment-composer">
+        {% csrf_token %}
+        {{ form.content.errors }}
+        {{ form.content }}
+        <div class="actions">
+            <button type="submit" class="btn">Reply</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="empty"><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+    {% endif %}
+
+    {% if comments %}
+    <ul class="feed comments-feed">
+        {% for comment in comments %}
+        <li class="post comment-item">
+            <div class="post-head">
+                <a class="post-author" href="{% url 'profile' comment.author.username %}">{{ comment.author.username }}</a>
+                <span class="post-time">{{ comment.created_at|timesince }} ago</span>
+            </div>
+            <p class="post-body">{{ comment.content|linebreaksbr }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No comments yet. Be the first!</p>
+    {% endif %}
+</section>
+
+<style>
+    /* Post detail card */
+    .detail-post {
+        padding: 1.5rem 0 1rem;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-body {
+        font-size: 1.15rem;
+        line-height: 1.65;
+        margin: 0.5rem 0 1rem;
+    }
+
+    /* Action row (like / comment count) */
+    .post-actions {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: none;
+        border: none;
+        font: inherit;
+        font-size: 0.95rem;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .action-btn:hover { background: #eceffa; color: var(--ink); }
+
+    /* Comments section */
+    .comments-section { margin-top: 1.5rem; }
+
+    .comments-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin: 0 0 1rem;
+    }
+
+    .comment-composer { margin-bottom: 1.5rem; }
+    .comment-composer textarea { font-size: 0.95rem; }
+    .comment-composer .actions { margin-top: 0.5rem; }
+
+    .comments-feed .comment-item { padding: 0.85rem 0; }
+</style>
+{% endblock %}

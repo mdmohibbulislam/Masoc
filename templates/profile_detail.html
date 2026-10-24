@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+{# ── Profile header ── #}
+<div class="profile-hero">
+
+    <div class="avatar-wrap">
+        <div class="avatar" aria-hidden="true">{{ profile_user.username|slice:":1"|upper }}</div>
+    </div>
+
+    <div class="profile-meta">
+        <h1 class="profile-username">{{ profile_user.username }}</h1>
+
+        {% if profile.bio %}
+        <p class="profile-bio">{{ profile.bio }}</p>
+        {% endif %}
+
+        <div class="profile-stats">
+            <span><strong>{{ posts.count }}</strong> posts</span>
+            <span><strong>{{ followers_count }}</strong> followers</span>
+            <span><strong>{{ following_count }}</strong> following</span>
+        </div>
+
+        {% if user.is_authenticated and user != profile_user %}
+        <form method="post" action="{% url 'toggle_follow' profile_user.username %}" class="follow-form">
+            {% csrf_token %}
+            {% if is_following %}
+            <button type="submit" class="btn btn-unfollow">
+                <span class="follow-label-default">Following</span>
+                <span class="follow-label-hover">Unfollow</span>
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-follow">Follow</button>
+            {% endif %}
+        </form>
+        {% elif user == profile_user %}
+        <a class="btn btn-quiet btn-edit-profile" href="{% url 'edit_profile' %}">Edit profile</a>
+        {% endif %}
+    </div>
+</div>
+
+{# ── Post feed ── #}
+<div class="profile-feed-header">
+    <span class="feed-label">Posts</span>
+</div>
+
+{% if posts %}
+<ul class="feed">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-head">
+            <span class="post-author">{{ profile_user.username }}</span>
+            <span class="post-time">{{ post.created_at|timesince }} ago</span>
+        </div>
+        <a class="post-body post-body-link" href="{% url 'post_detail' post.pk %}">{{ post.content|linebreaksbr }}</a>
+        <div class="post-actions">
+            <span class="action-btn static-action">Like {{ post.likes.count }}</span>
+            <a class="action-btn" href="{% url 'post_detail' post.pk %}">Comment {{ post.comments.count }}</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="empty">{{ profile_user.username }} hasn't posted anything yet.</p>
+{% endif %}
+
+<style>
+    /* ── Profile hero ── */
+    .profile-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1.5rem 0 2rem;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 1.75rem;
+    }
+
+    /* Avatar */
+    .avatar-wrap { flex-shrink: 0; }
+
+    .avatar {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3350e0 0%, #7b5ea7 100%);
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: -0.02em;
+        user-select: none;
+    }
+
+    /* Meta */
+    .profile-meta { flex: 1; min-width: 0; }
+
+    .profile-username {
+        font-size: 1.6rem;
+        margin: 0 0 0.3rem;
+    }
+
+    .profile-bio {
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+        max-width: 45ch;
+    }
+
+    /* Stats row */
+    .profile-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+
+    .profile-stats strong {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    /* Follow / unfollow button */
+    .follow-form { margin: 0; }
+
+    .btn-follow,
+    .btn-unfollow {
+        min-width: 8rem;
+        text-align: center;
+        border-radius: 999px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 700;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+
+    .btn-follow {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+    }
+
+    .btn-follow:hover { background: var(--accent-hover); }
+
+    /* "Following" button that reveals "Unfollow" on hover */
+    .btn-unfollow {
+        background: transparent;
+        color: var(--ink);
+        border: 2px solid var(--line);
+    }
+
+    .btn-unfollow .follow-label-default { display: inline; }
+    .btn-unfollow .follow-label-hover   { display: none; }
+
+    .btn-unfollow:hover {
+        border-color: var(--error);
+        color: var(--error);
+        background: #fef2f2;
+    }
+
+    .btn-unfollow:hover .follow-label-default { display: none; }
+    .btn-unfollow:hover .follow-label-hover   { display: inline; }
+
+    /* Own-profile badge */
+    .own-profile-badge {
+        display: inline-block;
+        padding: 0.35rem 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+
+    /* Feed section header */
+    .profile-feed-header {
+        margin-bottom: 0.25rem;
+    }
+
+    .feed-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+
+    /* Responsive: stack on very small screens */
+    @media (max-width: 28rem) {
+        .profile-hero { flex-direction: column; align-items: center; text-align: center; }
+        .profile-stats { justify-content: center; }
+    }
+</style>
+{% endblock %}
